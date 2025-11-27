@@ -162,10 +162,14 @@ class Zombie:
         wander = Sequence('배회', a3, a2)
 
         c1 = Condition('소년이 근처에 있는가?', self.if_boy_nearby, 7)
-        a4 = Action('소년 추적', self.move_to_boy)
 
-        chase_boy = Sequence('소년 추적', self.zombie_has_more_ball_than_boy, self.move_to_boy)
-        compare_ball = Selector('공 개수 비교', chase_boy, run)
+        a4 = Action('소년에게 다가가자', self.move_to_boy)
+        c2 = Condition('좀비가 소년보다 공이 더 많은가?', self.zombie_has_more_ball_than_boy)
+        chase_boy = Sequence('소년 추적', c2, a4)
+
+        a5 = Action('도망가', self.run)
+        c3 = Condition('좀비가 소년보다 공이 더 적은가?', self.zombie_has_less_ball_than_boy)
+        compare_ball = Selector('공 개수 비교', chase_boy, )
         where_is_boy = Sequence('소년 탐색', c1, compare_ball)
         chase_if_boy_nearby = Sequence('소년 탐색', c1, a4)
 
