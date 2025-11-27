@@ -152,6 +152,21 @@ class Zombie:
         else:
             return BehaviorTree.FAIL
 
+    def run_little_to(self, tx, ty):
+        # 먼저 각도 구하기
+        self.dir = -math.atan2(ty - self.y, tx - self.x)
+        distance = RUN_SPEED_PPS * game_framework.frame_time
+        self.x += distance * math.cos(self.dir)
+        self.y += distance * math.sin(self.dir)
+
+    def run(self, r=7):
+        self.state = 'Walk'
+        self.run_little_to(common.boy.x, common.boy.y)
+        if self.distance_less_than(self.x, self.y, common.boy.x, common.boy.y, r):
+            return BehaviorTree.RUNNING
+        else:
+            return BehaviorTree.SUCCESS
+
 
     def build_behavior_tree(self):
         a1 = Action('목표 지점 설정', self.set_target_location, 800, 800)
@@ -169,15 +184,13 @@ class Zombie:
 
         a5 = Action('도망가', self.run)
         c3 = Condition('좀비가 소년보다 공이 더 적은가?', self.zombie_has_less_ball_than_boy)
-        compare_ball = Selector('공 개수 비교', chase_boy, )
+        run_from_boy = Sequence('소년으로부터 도망', c3, a5)
+
+        compare_ball = Selector('공 개수 비교', chase_boy, run_from_boy)
+
         where_is_boy = Sequence('소년 탐색', c1, compare_ball)
-        chase_if_boy_nearby = Sequence('소년 탐색', c1, a4)
 
-        chase_or_wander = Selector('추적 아니면 배회', chase_if_boy_nearby, wander)
-
-        a5 = Action('다음 순찰 위치를 가져오기', self.get_patrol_location)
-        patrol = Sequence('순찰', a5, a2)
-        root = Selector('소년과 경쟁', chase_if_boy_nearby, patrol)
+        root = Selector('소년과 경쟁', where_is_boy, wander)
 
         self.bt = BehaviorTree(root)
 
