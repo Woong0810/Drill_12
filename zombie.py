@@ -154,7 +154,7 @@ class Zombie:
 
     def run_little_to(self, tx, ty):
         # 먼저 각도 구하기
-        self.dir = -math.atan2(ty - self.y, tx - self.x)
+        self.dir = math.atan2(self.y - ty, self.x - tx)
         distance = RUN_SPEED_PPS * game_framework.frame_time
         self.x += distance * math.cos(self.dir)
         self.y += distance * math.sin(self.dir)
@@ -166,7 +166,6 @@ class Zombie:
             return BehaviorTree.RUNNING
         else:
             return BehaviorTree.SUCCESS
-
 
     def build_behavior_tree(self):
         a1 = Action('목표 지점 설정', self.set_target_location, 800, 800)
